@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dodge the Falling Blocks</title>
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      overflow: hidden;
+      font-family: sans-serif;
+      color: white;
+      text-align: center;
+    }
+
+    canvas {
+      display: block;
+      margin: 0 auto;
+      background: #222;
+      border: 2px solid #fff;
+    }
+
+    h1 {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Dodge the Falling Blocks</h1>
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const player = {
+      x: 180,
+      y: 550,
+      width: 40,
+      height: 40,
+      speed: 10
+    };
+
+    const blocks = [];
+    let score = 0;
+    let gameOver = false;
+
+    function drawPlayer() {
+      ctx.fillStyle = 'lime';
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
+
+    function drawBlock(block) {
+      ctx.fillStyle = 'red';
+      ctx.fillRect(block.x, block.y, block.width, block.height);
+    }
+
+    function newBlock() {
+      const width = 40;
+      const x = Math.random() * (canvas.width - width);
+      blocks.push({ x: x, y: -40, width: width, height: 40, speed: 2 + Math.random() * 2 });
+    }
+
+    function updateBlocks() {
+      for (let i = blocks.length - 1; i >= 0; i--) {
+        const b = blocks[i];
+        b.y += b.speed;
+
+        // Check for collision
+        if (
+          b.x < player.x + player.width &&
+          b.x + b.width > player.x &&
+          b.y < player.y + player.height &&
+          b.y + b.height > player.y
+        ) {
+          gameOver = true;
+        }
+
+        // Remove blocks off screen
+        if (b.y > canvas.height) {
+          blocks.splice(i, 1);
+          score++;
+        }
+      }
+    }
+
+    function drawScore() {
+      ctx.fillStyle = 'white';
+      ctx.font = '20px Arial';
+      ctx.fillText(`Score: ${score}`, 10, 25);
+    }
+
+    function gameLoop() {
+      if (gameOver) {
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'white';
+        ctx.font = '30px Arial';
+        ctx.fillText(`Game Over! Final Score: ${score}`, 30, canvas.height / 2);
+        return;
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      drawPlayer();
+      updateBlocks();
+      blocks.forEach(drawBlock);
+      drawScore();
+
+      requestAnimationFrame(gameLoop);
+    }
+
+    setInterval(newBlock, 1000); // Create new block every second
+    
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') player.x -= player.speed;
+      if (e.key === 'ArrowRight') player.x += player.speed;
+
+      // Keep player within bounds
+      player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+    });
+
+    gameLoop();
+  </script>
+  
+</body>
+</html>
