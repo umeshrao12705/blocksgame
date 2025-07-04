@@ -123,6 +123,75 @@
 
     gameLoop();
   </script>
+  <div id="touchControls">
+  <button id="leftBtn"></button>
+  <button id="rightBtn"></button>
+</div>
+
+<style>
+  #touchControls {
+    position: absolute;
+    bottom: 100px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+  }
+
+  #touchControls button {
+    padding: 25px 30px;
+    font-size: 20px;
+    border: none;
+    border-radius: 10px;
+    background-color: #444;
+    color: white;
+    cursor: pointer;
+  }
+
+  #touchControls button:active {
+    background-color: #666;
+  }
+</style>
+
+<script>
+  const leftBtn = document.getElementById('leftBtn');
+  const rightBtn = document.getElementById('rightBtn');
   
+  let moveInterval = null;
+  
+  function moveLeft() {
+    player.x -= player.speed;
+    player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+  }
+  
+  function moveRight() {
+    player.x += player.speed;
+    player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
+  }
+  
+  // Start moving when button is held
+  leftBtn.addEventListener('touchstart', () => {
+    moveLeft();
+    moveInterval = setInterval(moveLeft, 100);
+  });
+  
+  rightBtn.addEventListener('touchstart', () => {
+    moveRight();
+    moveInterval = setInterval(moveRight, 100);
+  });
+  
+  // Stop moving when touch ends
+  leftBtn.addEventListener('touchend', () => {
+    clearInterval(moveInterval);
+  });
+  
+  rightBtn.addEventListener('touchend', () => {
+    clearInterval(moveInterval);
+  });
+  
+  // Safety: stop movement if touch is canceled (e.g., finger dragged off button)
+  leftBtn.addEventListener('touchcancel', () => clearInterval(moveInterval));
+  rightBtn.addEventListener('touchcancel', () => clearInterval(moveInterval));
+</script>
 </body>
 </html>
